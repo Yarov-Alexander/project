@@ -38,7 +38,7 @@ class CategoryServices:
 
 
     async def create_category(self, category: CategoryCreate) -> Category:
-        check = await self.category_repo.get_one_category(category.category_id)
+        check = await self.category_repo.get_category_by_name(category.name)
         if check is not None:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Category already exists")
         result = await self.category_repo.create_category(category.name, category.parent_id)

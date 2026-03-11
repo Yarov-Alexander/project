@@ -45,5 +45,5 @@ async def delete_category(category_id: int, category_service: CategoryServices =
     Удаляет категорию по её ID.
     """
 
-    result = await category_service.delete_category(category_id)
-    return {"message": f"Категория с ID {category_id} удалена (заглушка)"}
+    await category_service.delete_category(category_id)
+    return {"message": f"Категория с ID {category_id} удалена"}

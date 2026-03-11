@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class CategoryCreate(BaseModel):
     name: str = Field(..., description="Название категории")
-    parent_id: int = Field(..., description="ID родительской категории")
+    parent_id: int | None = Field(None, description="ID родительской категории")
 
 class Category(BaseModel):
     id: int = Field(..., description="ID категории")

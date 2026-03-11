@@ -30,15 +30,20 @@ class CategoryRepositories:
 
     async def delete_category_by_id(self, category_id: int):
 
-        await self.db.execute(delete(Category).where(Category.id == category_id))
+        await self.db.execute(update(Category).where(Category.id == category_id).values(is_active=False))
         await self.db.commit()
         return True
 
 
-    async def create_category(self, name: str, parent_id: int) -> Category:
+    async def create_category(self, name: str, parent_id: int | None) -> Category:
 
         category_create = Category(name = name, parent_id = parent_id)
         self.db.add(category_create)
         await self.db.commit()
         await self.db.refresh(category_create)
         return category_create
+
+    async def get_category_by_name(self, name: str) -> Category | None:
+        category_db = await self.db.scalars(select(Category).where(Category.name == name))
+        category = category_db.first()
+        return category
