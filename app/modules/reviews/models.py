@@ -2,7 +2,7 @@ from sqlalchemy import ForeignKey, DateTime, CheckConstraint
 from app.core.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from decimal import Decimal
+
 
 class ReviewModel(Base):
     __tablename__ = "reviews"

@@ -1,6 +1,9 @@
 from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 
+from app.modules.products.models import Product
+
+
 class CartItem(BaseModel):
     product_id: int = Field(description="ID товара")
     quantity: int = Field(ge=1, description="Количество товара")
@@ -19,7 +22,7 @@ class CartItemUpdate(BaseModel):
 class CartItem(BaseModel):
     id: int = Field(..., description="ID позиции корзины")
     quantity: int = Field(..., ge=1, description="Количество товара")
-    product_id: int = Field(description="ID товара")
+    product: Product = Field(description="ID товара")
 
     model_config = ConfigDict(from_attributes=True)
 
