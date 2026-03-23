@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import TSVECTOR
 from app.core.database import Base
 
 
+
 class Product(Base):
     __tablename__ = "products"
 
@@ -30,9 +31,10 @@ class Product(Base):
                                              """
                                              setweight(to_tsvector('english', coalesce(name, '')), 'A')
                                              ||
-                                             setweight(to_tsvector('english', coalesce(name, '')), 'B')
+                                             setweight(to_tsvector('english', coalesce(description, '')), 'B')
                                              """,
                                              persisted=True), nullable=False
     )
 
     __table_args__ = (Index("ix_products_tsv_gin", "tsv", postgresql_using="gin"), )
+
