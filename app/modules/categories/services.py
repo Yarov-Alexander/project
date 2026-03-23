@@ -1,12 +1,12 @@
 from fastapi import HTTPException, status
 
-from .repositories import CategoryRepositories
+from .repositories import CategoryRepository
 from .schemas import CategoryCreate
 from .models import Category
 
 
-class CategoryServices:
-    def __init__(self, category_repo: CategoryRepositories):
+class CategoryService:
+    def __init__(self, category_repo: CategoryRepository):
         self.category_repo = category_repo
 
     async def get_all_categories(self, skip: int=0, limit: int=100) -> list[Category]:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
-from .services import CategoryServices
+from .services import CategoryService
 
 from app.core.dependcies import get_category_service
 from .schemas import Category as CategorySchema, CategoryCreate
@@ -11,8 +11,13 @@ router = APIRouter(
 )
 
 
+@router.get("/{category_id}", response_model=CategoryModel)
+async def get_category_by_id(category_id: int, category_service: CategoryService = Depends(get_category_service)):
+    result = await category_service.get_category_by_id(category_id)
+    return result
+
 @router.get("/", response_model=list[CategorySchema])
-async def get_all_categories(category_service: CategoryServices = Depends(get_category_service)) -> list[CategoryModel]:
+async def get_all_categories(category_service: CategoryService = Depends(get_category_service)) -> list[CategoryModel]:
     """
     Возвращает список всех категорий товаров.
     """
@@ -21,7 +26,7 @@ async def get_all_categories(category_service: CategoryServices = Depends(get_ca
 
 
 @router.post("/", response_model=CategorySchema, status_code=status.HTTP_201_CREATED)
-async def create_category(category_body: CategoryCreate, category_service: CategoryServices = Depends(get_category_service)) -> CategoryModel:
+async def create_category(category_body: CategoryCreate, category_service: CategoryService = Depends(get_category_service)) -> CategoryModel:
     """
     Создаёт новую категорию.
     """
@@ -31,7 +36,7 @@ async def create_category(category_body: CategoryCreate, category_service: Categ
 
 @router.put("/{category_id}", response_model=CategorySchema)
 async def update_category(category_id: int, category: CategoryCreate,
-                          category_service: CategoryServices = Depends(get_category_service)) -> CategoryModel:
+                          category_service: CategoryService = Depends(get_category_service)) -> CategoryModel:
     """
     Обновляет категорию по её ID.
     """
@@ -40,7 +45,7 @@ async def update_category(category_id: int, category: CategoryCreate,
 
 
 @router.delete("/{category_id}", status_code=status.HTTP_200_OK)
-async def delete_category(category_id: int, category_service: CategoryServices = Depends(get_category_service)) -> dict:
+async def delete_category(category_id: int, category_service: CategoryService = Depends(get_category_service)) -> dict:
     """
     Удаляет категорию по её ID.
     """
