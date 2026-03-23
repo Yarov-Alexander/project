@@ -14,7 +14,12 @@ class UserRepository:
         return await self.db.refresh(user)
 
     async def get_user_by_email(self, email: str) -> UserModel | None:
-        result = await self.db.scalars(select(UserModel).where(UserModel.email == email, UserModel.is_active == True))
+        result = await self.db.scalars(select(
+            UserModel).where(
+                UserModel.email == email,
+                UserModel.is_active == True
+            )
+        )
         return result.first()
 
     async def create_user(self, email: str, password: str, role: str) -> UserModel:

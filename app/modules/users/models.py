@@ -1,8 +1,8 @@
 from sqlalchemy import Boolean, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
+from app.modules.CartItem.models import CartItem
 from app.core.database import Base
-
+from app.modules.products.models import Product
 
 class User(Base):
     __tablename__ = "users"
@@ -15,4 +15,4 @@ class User(Base):
 
     products: Mapped[list["Product"]] = relationship("Product", back_populates="seller")
     #reviews_users: Mapped["ReviewModel"] = relationship("ReviewModel", back_populates="users")
-    #cart_items_users: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="users", cascade="all, delete-orphan")
+    cart_items: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="users", cascade="all, delete-orphan")

@@ -4,7 +4,8 @@ from .exceptions import UserAlreadyExistsError, InvalidCredentialsError
 from.schemas import User as UserSchema, UserCreate
 from .services import UserService
 from app.core.dependcies import get_user_service
-
+from .schemas import RefreshTokenRequest
+import jwt
 
 router = APIRouter(prefix="/users",
                    tags=["users"]
@@ -34,3 +35,34 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends(), user_service: 
             headers={"WWW-Authenticate": "Bearer"}
         )
 
+
+@router.post("/access-token", status_code=status.HTTP_200_OK)
+async def update_access_token(body: RefreshTokenRequest, user_service: UserService = Depends()):
+    credentials = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail = "Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+    try:
+        update_token = await user_service.update_access_token(body.refresh_token)
+    except InvalidCredentialsError:
+        raise credentials
+    except jwt.PyJWTError:
+        raise credentials
+    return update_token
+
+
+@router.post("/refresh-token", status_code=status.HTTP_200_OK)
+async def update_refresh_token(body: RefreshTokenRequest, user_service: UserService = Depends()):
+    credentials = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail = "Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+    try:
+        update_token = await user_service.update_refresh_token(body.refresh_token)
+    except InvalidCredentialsError:
+        raise credentials
+    except jwt.PyJWTError:
+        raise credentials
+    return update_token

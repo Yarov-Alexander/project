@@ -13,3 +13,6 @@ class User(BaseModel):
     role: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
