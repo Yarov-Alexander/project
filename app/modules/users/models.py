@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.modules.CartItem.models import CartItem
+
 from app.core.database import Base
 from app.modules.products.models import Product
 
