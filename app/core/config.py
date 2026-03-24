@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+asyncpg://postgres:********@localhost:5432/postgres"
+    database_url: str
     secret_key: str
     algorithm: str = "HS256"
     refresh_token_expire_days: int = 7

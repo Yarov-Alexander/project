@@ -37,5 +37,5 @@ def get_user_service(user_repo: UserRepository = Depends(get_user_repository)):
 def get_cart_repository(db: AsyncSession = Depends(get_async_db)):
     return CartRepository(db=db)
 
-def get_cart_service(cart_repo: CartRepository = Depends(get_cart_repository):
+def get_cart_service(cart_repo: CartRepository = Depends(get_cart_repository)):
     return CartService(cart_repo=cart_repo)
