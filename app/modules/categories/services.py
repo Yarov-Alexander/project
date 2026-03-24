@@ -1,5 +1,4 @@
 from fastapi import HTTPException, status
-
 from .repositories import CategoryRepository
 from .schemas import CategoryCreate
 from .models import Category
@@ -9,45 +8,35 @@ class CategoryService:
     def __init__(self, category_repo: CategoryRepository):
         self.category_repo = category_repo
 
-    async def get_all_categories(self, skip: int=0, limit: int=100) -> list[Category]:
-        all_categories = await self.category_repo.get_all_categories(skip=skip, limit=limit)
-        return all_categories
+    async def get_all_categories(self, skip: int = 0, limit: int = 100) -> list[Category]:
+        return await self.category_repo.get_all_categories(skip=skip, limit=limit)
 
-    async def get_category_by_id(self, category_id: int):
-        result = await self.category_repo.get_one_category(category_id)
-        if result is None:
+    async def get_category_by_id(self, category_id: int) -> Category:
+        category = await self.category_repo.get_one_category(category_id)
+        if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-        return result
-
-
-    async def update_category(self, category_id: int, category: CategoryCreate):
-        category_db = await self.category_repo.get_one_category(category_id)
-
-        if category_db is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-
-        if category_db.parent_id is not None:
-            parent = await self.category_repo.get_one_category(category_db.parent_id)
-            if parent is None:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-            if parent.id == category_db.id:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category cannot be its own parent")
-
-        result = await self.category_repo.update_category(category_id, **category.model_dump())
-        return result
-
+        return category
 
     async def create_category(self, category: CategoryCreate) -> Category:
-        check = await self.category_repo.get_category_by_name(category.name)
-        if check is not None:
+        # Проверяем уникальность имени
+        existing = await self.category_repo.get_category_by_name(category.name)
+        if existing:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Category already exists")
-        result = await self.category_repo.create_category(category.name, category.parent_id)
-        return result
+        return await self.category_repo.create_category(category.name, category.parent_id)
 
-
-    async def delete_category(self, category_id: int):
-        check = await self.category_repo.get_one_category(category_id)
-        if check is None:
+    async def update_category(self, category_id: int, category: CategoryCreate) -> Category:
+        category_db = await self.category_repo.get_one_category(category_id)
+        if not category_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-        result = await self.category_repo.delete_category_by_id(category_id)
-        return result
+
+        # Проверка на то, чтобы родитель не был самим собой
+        if category.parent_id is not None and category.parent_id == category_id:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Category cannot be its own parent")
+        return await self.category_repo.update_category(category_id, category.model_dump())
+
+    async def delete_category(self, category_id: int) -> None:
+        category_db = await self.category_repo.get_one_category(category_id)
+        if not category_db:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+        await self.category_repo.delete_category_by_id(category_id)
