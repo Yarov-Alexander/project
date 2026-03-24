@@ -30,7 +30,7 @@ async def delete_category(category_id: int, service: CategoryService = Depends(g
     return {"message": f"Category with ID {category_id} deleted"}
 
 @router.post("/", response_model=CategorySchema, status_code=status.HTTP_201_CREATED)
-async def create_category(category_body: CategoryCreate, category_service: CategoryService = Depends(get_category_service)) -> CategoryModel:
+async def create_category(category_body: CategoryCreate, category_service: CategoryService = Depends(get_category_service)) -> CategorySchema:
     """
     Создаёт новую категорию.
     """
@@ -40,7 +40,7 @@ async def create_category(category_body: CategoryCreate, category_service: Categ
 
 @router.put("/{category_id}", response_model=CategorySchema)
 async def update_category(category_id: int, category: CategoryCreate,
-                          category_service: CategoryService = Depends(get_category_service)) -> CategoryModel:
+                          category_service: CategoryService = Depends(get_category_service)) -> CategorySchema:
     """
     Обновляет категорию по её ID.
     """

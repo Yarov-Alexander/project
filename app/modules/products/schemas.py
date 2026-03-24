@@ -13,6 +13,7 @@ class ProductCreate(BaseModel):
     stock: int = Field(..., ge=0, description="Количество товара на складе (0 или больше)")
     category_id: int = Field(..., description="ID категории, к которой относится товар")
 
+    model_config = ConfigDict(from_attributes=True)
 
 class Product(BaseModel):
     """
