@@ -21,7 +21,7 @@ class Product(Base):
     seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)  # New
 
 
-    #cart_items_products: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="products", cascade="all, delete-orphan")
+    cart_items_products: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="products", cascade="all, delete-orphan")
 
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     seller: Mapped["User"] = relationship("User", back_populates="products")  # New

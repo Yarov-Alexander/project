@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.modules.CartItem.models import CartItem
 from app.modules.users.models import User
 from app.modules.categories import models
+from app.modules.reviews.models import Review
 
 from alembic import context
 
