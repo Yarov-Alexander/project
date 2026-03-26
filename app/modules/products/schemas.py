@@ -13,6 +13,7 @@ class ProductCreate(BaseModel):
     stock: int = Field(..., ge=0, description="Количество товара на складе (0 или больше)")
     category_id: int = Field(..., description="ID категории, к которой относится товар")
 
+
     model_config = ConfigDict(from_attributes=True)
 
 class Product(BaseModel):
@@ -28,5 +29,6 @@ class Product(BaseModel):
     stock: int = Field(..., description="Количество товара на складе")
     category_id: int = Field(..., description="ID категории")
     is_active: bool = Field(..., description="Активность товара")
+    seller_id: int = Field(..., description="ID владельца товара")
 
     model_config = ConfigDict(from_attributes=True)
