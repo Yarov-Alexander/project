@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.auth.dependcies import get_current_user
 from app.core.dependcies import get_cart_service
+from app.core.exceptions import NotFound
 from app.modules.CartItem.schemas import CartItem as CartItemSchema, CartItemUpdate, Cart, CartItemCreate
 from app.modules.CartItem.services import CartService
 from app.modules.users.models import User
-from decimal import Decimal
+
 
 
 router = APIRouter(
@@ -17,55 +18,29 @@ router = APIRouter(
 async def get_cart(
     cart_service: CartService = Depends(get_cart_service),
     current_user: User = Depends(get_current_user),
-):
-    items = await cart_service.get_user_cart_items(current_user.id)
+) -> Cart:
 
-    total_quantity = sum(item.quantity for item in items)
+    cart = await cart_service.get_user_cart_items(current_user.id)
+    return cart
 
-    total_price = sum(
-        Decimal(item.quantity) *
-        (item.product.price if item.product.price else Decimal("0"))
-        for item in items
-    )
 
-    return Cart(
-        user_id=current_user.id,
-        items=items,
-        total_quantity=total_quantity,
-        total_price=total_price
-    )
-
-@router.post("/items", response_model=CartItemSchema, status_code=201)
+@router.post("/items", response_model=CartItemSchema, status_code=status.HTTP_201_CREATED)
 async def add_item(
     payload: CartItemCreate,
     cart_service: CartService = Depends(get_cart_service),
     current_user: User = Depends(get_current_user),
-):
-    product = await cart_service._ensure_product_available(payload.product_id)
-
-    if not product:
-        raise HTTPException(404, "Product not found")
-
-    cart_item = await cart_service._get_cart_item(
+) -> CartItemSchema:
+    try:
+        cart_item = await cart_service.add_item_to_cart(
         current_user.id,
-        payload.product_id
-    )
-
-    if cart_item:
-        cart_item.quantity += payload.quantity
-    else:
-        cart_item = await cart_service.create_item(
-            current_user.id,
-            payload.product_id,
-            payload.quantity
+        payload.product_id,
+        payload.quantity,
         )
+    except NotFound("Product not found"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
-    await cart_service.commit()
+    return cart_item
 
-    return await cart_service._get_cart_item(
-        current_user.id,
-        payload.product_id
-    )
 
 @router.put("/items/{product_id}", response_model=CartItemSchema)
 async def update_item(
@@ -74,47 +49,31 @@ async def update_item(
     cart_service: CartService = Depends(get_cart_service),
     current_user: User = Depends(get_current_user),
 ):
-    product = await cart_service._ensure_product_available(product_id)
+    try:
+        cart_item = await cart_service.update_item(payload.quantiny, product_id, current_user.id)
+    except NotFound("Product not found"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    except NotFound("Cart not found"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")
+    return cart_item
 
-    if not product:
-        raise HTTPException(404, "Product not found")
-
-    cart_item = await cart_service._get_cart_item(
-        current_user.id,
-        product_id
-    )
-
-    if not cart_item:
-        raise HTTPException(404, "Cart item not found")
-
-    cart_item.quantity = payload.quantity
-    await cart_service.commit()
-
-    return await cart_service._get_cart_item(
-        current_user.id,
-        product_id
-    )
-
-
-@router.delete("/items/{product_id}", status_code=204)
+@router.delete("/items/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_item(
     product_id: int,
     cart_service: CartService = Depends(get_cart_service),
     current_user: User = Depends(get_current_user),
 ):
-    cart_item = await cart_service._get_cart_item(
-        current_user.id,
-        product_id
-    )
-
-    if not cart_item:
-        raise HTTPException(404, "Cart item not found")
-
-    await cart_service.delete_item(cart_item)
-    await cart_service.commit()
+    try:
+        await cart_service.delete_item(product_id, current_user.id)
+    except NotFound("Product not found"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    except NotFound("Cart not found"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")
 
 
-@router.delete("/", status_code=204)
+
+
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
 async def clear_cart(
     cart_service: CartService = Depends(get_cart_service),
     current_user: User = Depends(get_current_user),

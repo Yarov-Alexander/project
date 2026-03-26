@@ -4,15 +4,10 @@ from decimal import Decimal
 from app.modules.products.schemas import Product
 
 
-class CartItem(BaseModel):
+class CartItemCreate(BaseModel):
+
     product_id: int = Field(description="ID товара")
     quantity: int = Field(ge=1, description="Количество товара")
-    model_config = ConfigDict(from_attributes=True)
-
-class CartItemCreate(CartItem):
-    """
-    Создание товара
-    """
     model_config = ConfigDict(from_attributes=True)
 
 class CartItemUpdate(BaseModel):
