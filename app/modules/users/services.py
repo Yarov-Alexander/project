@@ -25,8 +25,6 @@ class UserService:
             role=user.role
         )
 
-        await self.user_repo.commit()
-        await self.user_repo.refresh(result)
         return result
 
     async def login(self, email: str, password: str) -> dict:

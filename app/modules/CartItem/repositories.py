@@ -42,16 +42,15 @@ class CartRepository:
 
     async def delete_cart_item(self, cart_item: CartItemModel):
         await self.db.delete(cart_item)
+        await self.db.commit()
 
 
     async def clear_cart(self, user_id: int):
         await self.db.execute(
             delete(CartItemModel).where(CartItemModel.user_id == user_id)
         )
-
-
-    async def commit(self):
         await self.db.commit()
 
-    def add(self, cart_item: CartItemModel):
+    async def add_cart_item(self, cart_item: CartItemModel):
         self.db.add(cart_item)
+        await self.db.commit()

@@ -27,24 +27,21 @@ class ProductService:
             raise CategoryNotFound()
 
         result = await self.product_repo.create_product(seller_id=seller_id, product=product_dict)
-        await self.product_repo.db.commit()
-        await self.product_repo.db.refresh(result)
         return result
 
     async def update_product(self, seller_id: int, product_dict: dict, product_id: int):
         product = await self.product_repo.get_product_by_id(product_id)
         if not product:
             raise ProductNotFound()
-        if product.category_id != seller_id:
+        if product.seller_id != seller_id:
             raise ValueError()
 
         category = await self.category_repo.get_one_category(product.category_id)
         if not category:
             raise CategoryNotFound()
 
-        await self.product_repo.update_product(product_dict=product_dict, product_id=product_id)
-        await self.product_repo.db.commit()
-        return await self.product_repo.db.refresh(product)
+        product = await self.product_repo.update_product(product_dict=product_dict, product_id=product_id)
+        return product
 
     async def delete_product(self, product_id: int, user_id: int):
         product = await self.product_repo.get_product_by_id(product_id)

@@ -19,7 +19,7 @@ class Product(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)  # New
-
+    rating: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
     cart_items_products: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="products", cascade="all, delete-orphan")
 

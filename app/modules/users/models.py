@@ -14,5 +14,5 @@ class User(Base):
     role: Mapped[str] = mapped_column(String, default="buyer")  # "buyer" or "seller"
 
     products: Mapped[list["Product"]] = relationship("Product", back_populates="seller")
-    #reviews_users: Mapped["ReviewModel"] = relationship("ReviewModel", back_populates="users")
+    reviews_users: Mapped["Review"] = relationship("Review", back_populates="users")
     cart_items: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="users", cascade="all, delete-orphan")

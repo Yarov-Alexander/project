@@ -1,22 +1,22 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from .models import Review
-from app.modules.products.models import Product
+
 
 
 class ReviewRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_all_active(self):
+    async def get_all_reviews(self):
         result = await self.db.scalars(
             select(Review).where(Review.is_active == True)
         )
         return result.all()
 
-    async def get_by_product(self, product_id: int):
+    async def get_reviews_by_product_id(self, product_id: int):
         result = await self.db.scalars(
             select(Review).where(
                 Review.product_id == product_id,
@@ -25,13 +25,13 @@ class ReviewRepository:
         )
         return result.all()
 
-    async def create(self, review: Review):
-        self.db.add(review)
+    async def create_review(self, review: dict):
+        review_db = Review(**review)
+        self.db.add(review_db)
         await self.db.commit()
-        await self.db.refresh(review)
         return review
 
-    async def get_by_id(self, review_id: int):
+    async def get_review_by_id(self, review_id: int):
         return await self.db.get(Review, review_id)
 
     async def soft_delete(self, review: Review):
@@ -46,8 +46,3 @@ class ReviewRepository:
             )
         )
         return result.scalar() or 0.0
-
-    async def update_product_rating(self, product_id: int, rating: float):
-        product = await self.db.get(Product, product_id)
-        product.rating = rating
-        await self.db.commit()

@@ -1,55 +1,53 @@
-from fastapi import HTTPException, status
+from fastapi import Depends
 
 from .repositories import ReviewRepository
-from .models import Review
+from ..products.exceptions import ProductNotFound
+from ..products.repositories import ProductRepository
+from ..users.models import User
+from ...core.exceptions import ReviewNotFound
 
 
 class ReviewService:
-    def __init__(self, repo: ReviewRepository):
-        self.repo = repo
+    def __init__(self, review_repo: ReviewRepository, product_repo: ProductRepository):
+        self.review_repo = review_repo
+        self.product_repo = product_repo
 
     async def get_all_reviews(self):
-        return await self.repo.get_all_active()
+        return await self.review_repo.get_all_reviews()
 
-    async def get_product_reviews(self, product_id: int, product):
-        if not product or not product.is_active:
-            raise HTTPException(status_code=404, detail="Product not found")
 
-        return await self.repo.get_by_product(product_id)
+    async def get_reviews_by_product_id(self, product_id: int):
 
-    async def create_review(self, data, user, product):
-        if user.role != "buyer":
-            raise HTTPException(status_code=403, detail="Only buyers can add reviews")
+        product = await self.product_repo.get_product_by_id(product_id)
+        if not product:
+            raise ProductNotFound()
+        reviews =  await self.review_repo.get_reviews_by_product_id(product_id)
+        if not reviews:
+            raise ReviewNotFound()
+        return reviews
 
-        if not product or not product.is_active:
-            raise HTTPException(status_code=404, detail="Product not found")
 
-        review = Review(
-            user_id=user.id,
-            product_id=data.product_id,
-            comment=data.comment,
-            grade=data.grade
-        )
+    async def create_review(self, data: dict):
 
-        review = await self.repo.create(review)
+        product = await self.product_repo.get_product_by_id(data["product_id"])
+        if not product:
+            raise ProductNotFound()
+        review = await self.review_repo.create_review(data)
 
-        # пересчёт рейтинга
-        avg = await self.repo.calculate_avg_rating(data.product_id)
-        await self.repo.update_product_rating(data.product_id, avg)
 
-        return review
+        avg = await self.review_repo.calculate_avg_rating(data["product_id"])
+        await self.product_repo.update_product_rating(data["product_id"], avg)
 
-    async def delete_review(self, review_id: int, user):
-        review = await self.repo.get_by_id(review_id)
+        return await self.review_repo.get_reviews_by_product_id(review.product_id)
+
+
+    async def delete_review(self, review_id: int):
+        review = await self.review_repo.get_review_by_id(review_id)
 
         if not review or not review.is_active:
-            raise HTTPException(status_code=404, detail="Review not found")
+            raise ReviewNotFound()
 
-        if review.user_id != user.id and user.role != "admin":
-            raise HTTPException(status_code=403, detail="Not enough permissions")
+        await self.review_repo.soft_delete(review)
 
-        await self.repo.soft_delete(review)
-
-        # пересчёт рейтинга
-        avg = await self.repo.calculate_avg_rating(review.product_id)
-        await self.repo.update_product_rating(review.product_id, avg)
+        avg = await self.review_repo.calculate_avg_rating(review.product_id)
+        await self.product_repo.update_product_rating(review.product_id, avg)

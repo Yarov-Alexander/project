@@ -3,9 +3,10 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException
 from starlette import status
 from app.core.config import settings
+from app.core.dependcies import get_user_service
 from app.modules.users.models import User as UserModel
 from app.modules.users.services import UserService
-from app.core.dependcies import get_user_service
+
 
 
 
@@ -49,6 +50,7 @@ async def get_current_admin(current_user: UserModel = Depends(get_current_user))
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail='Only sellers can perfom actions',
                             headers={"WWW-Authenticate": "Bearer"}, )
+    return current_user
 
 async def get_current_buyer(current_user: UserModel = Depends(get_current_user)):
     if current_user.role != "buyer":

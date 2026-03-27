@@ -1,18 +1,20 @@
 from decimal import Decimal
 
-from app.core.exceptions import NotFound
+from app.core.exceptions import ProductNotFound, CartNotFound
 from app.modules.CartItem.schemas import Cart
 from app.modules.CartItem.repositories import CartRepository
 from app.modules.CartItem.models import CartItem as CartItemModel
+from app.modules.products.repositories import ProductRepository
+
 
 class CartService:
 
-    def __init__(self, cart_repo: CartRepository):
+    def __init__(self, cart_repo: CartRepository, product_repo: ProductRepository):
         self.cart_repo = cart_repo
-
+        self.product_repo = product_repo
     
     async def _ensure_product_available(self, product_id: int):
-        product = await self.cart_repo.get_product_by_id(product_id)
+        product = await self.product_repo.get_product_by_id(product_id)
         if not product:
             return None
         return product
@@ -62,7 +64,7 @@ class CartService:
     async def add_item_to_cart(self, user_id: int, product_id: int, quantity: int):
         product = await self._ensure_product_available(product_id)
         if not product:
-            raise NotFound("Product not found")
+            raise ProductNotFound("Product not found")
         cart_item = await self._get_cart_item(user_id, product_id)
 
         if cart_item:
@@ -73,24 +75,22 @@ class CartService:
                 product_id=product_id,
                 quantity=quantity
             )
+        await self.cart_repo.add_cart_item(cart_item)
 
-        self.cart_repo.add(cart_item)
-        await self.cart_repo.commit()
         return await self._get_cart_item(user_id, product_id)
 
 
     async def update_item(self, user_id: int, product_id: int, quantity: int):
         product = await self._ensure_product_available(product_id)
         if not product:
-            raise NotFound("Product not found")
+            raise ProductNotFound("Product not found")
 
         cart_item = await self._get_cart_item(user_id, product_id)
         if not cart_item:
-            raise NotFound("Cart item not found")
+            raise CartNotFound("Cart item not found")
 
         cart_item.quantity = quantity
-        self.cart_repo.add(cart_item)
-        await self.cart_repo.commit()
+        await self.cart_repo.add_cart_item(cart_item)
 
         return await self._get_cart_item(user_id, product_id)
 
@@ -98,18 +98,18 @@ class CartService:
     async def delete_item(self, user_id: int, product_id: int):
         product = await self._ensure_product_available(product_id)
         if not product:
-            raise NotFound("Product not found")
+            raise ProductNotFound("Product not found")
 
         cart_item = await self._get_cart_item(user_id, product_id)
         if not cart_item:
-            raise NotFound("Cart item not found")
+            raise CartNotFound("Cart item not found")
 
         await self.cart_repo.delete_cart_item(cart_item)
-        await self.cart_repo.commit()
+
 
 
     async def clear_cart(self, user_id: int):
         await self.cart_repo.clear_cart(user_id)
-        await self.cart_repo.commit()
+
 
 
