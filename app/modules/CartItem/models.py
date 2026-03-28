@@ -14,7 +14,7 @@ class CartItem(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
     quantity: Mapped[int] = mapped_column('quantity >= 0', nullable=False)
 
-    user: Mapped["User"] = relationship("User", back_populates="cart_items")
-    products: Mapped["Product"] = relationship("Product", back_populates="cart_items")
+    users: Mapped["User"] = relationship("User", back_populates="cart_items")
+    products: Mapped["Product"] = relationship("Product", back_populates="cart_items_products")
 
     __table_args__ = (UniqueConstraint('user_id', 'product_id', name='user_id_product_id_unique'),)

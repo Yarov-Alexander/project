@@ -1,9 +1,7 @@
-from fastapi import Depends
 
 from .repositories import ReviewRepository
 from ..products.exceptions import ProductNotFound
 from ..products.repositories import ProductRepository
-from ..users.models import User
 from ...core.exceptions import ReviewNotFound
 
 

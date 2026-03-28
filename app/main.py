@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI
 from .modules.categories.routers import router as categories_router
 from app.modules.users.routers import router as users_router
 from app.modules.CartItem.routers import router as cart_router
 from app.modules.reviews.routers import router as reviews_router
 from app.modules.products.routers import router as products_router
 
-app = FastAPI()
+app = FastAPI(title="Интернет Магазин")
 app.include_router(categories_router)
 app.include_router(users_router)
 app.include_router(cart_router)

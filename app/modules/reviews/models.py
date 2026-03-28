@@ -16,8 +16,8 @@ class Review(Base):
     grade: Mapped[int] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    product = relationship("Product", back_populates="reviews")
-    user = relationship("User", back_populates="reviews")
+    products = relationship("Product", back_populates="reviews_products")
+    users = relationship("User", back_populates="reviews_users")
 
     __table_args__ = (
         CheckConstraint("grade >= 1 AND grade <= 5", name="check_grade_range"),
