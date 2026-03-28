@@ -28,13 +28,13 @@ async def create_user(
 
 
 @router.post("/token", status_code=status.HTTP_201_CREATED)
-async def token(
+async def get_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        tokens = await user_service.login(form_data.username, form_data.password)
-        return tokens
+        token = await user_service.login(form_data.username, form_data.password)
+        return token
     except InvalidCredentialsError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

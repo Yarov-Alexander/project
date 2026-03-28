@@ -31,18 +31,41 @@ async def test_engine():
 async def session_maker(test_engine):
     return async_sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def test_app(session_maker):
     async def _get_async_db():
         async with session_maker() as session:
-            yield session
+            async with session.begin():
+                yield session
+                await session.rollback()
 
     prod_app.dependency_overrides[get_async_db] = _get_async_db
     yield prod_app
     prod_app.dependency_overrides.clear()
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def test_client(test_app: FastAPI):
-    transport = ASGITransport(app=prod_app)
+    transport = ASGITransport(app=test_app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
+
+@pytest_asyncio.fixture
+async def auth_client(test_client):
+    await test_client.post("/users/", json={
+        "email": "testemail@gmail.com",
+        "password": "testpassword",
+        "role": "admin"
+    })
+    print("Пользователь создан")
+    # теперь user точно есть в базе
+    token_response = await test_client.post("/users/token", data={
+        "username": "testemail@gmail.com",
+        "password": "testpassword"
+    })
+    print("Токен получен")
+    try:
+        token = token_response.json()["access_token"]
+    except KeyError:
+        print("Не удалось извлечь токен")
+        test_client.headers.update({"Authorization": f"Bearer {token}"})
+    return test_client

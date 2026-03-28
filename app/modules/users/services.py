@@ -14,21 +14,23 @@ class UserService:
 
 
     async def create_user(self, user: UserCreate) -> UserModel:
-        existing = await self.user_repo.get_user_by_email(user.email)
+        existing = await self.user_repo.get_user_by_email(str(user.email))
         if existing:
             raise UserAlreadyExistsError()
 
         hashed_password = hash_password(user.password)
         result = await self.user_repo.create_user(
-            user.email,
+            str(user.email),
             hashed_password,
             role=user.role
         )
 
         return result
 
-    async def login(self, email: str, password: str) -> dict:
-        user = await self.user_repo.get_user_by_email(email)
+    async def login(self, username: str, password: str) -> dict:
+        user = await self.user_repo.get_user_by_email(username)
+        if not user:
+            print("Пользователь не найден")
         if not user or not verify_password(password, user.hashed_password):
             raise InvalidCredentialsError()
 

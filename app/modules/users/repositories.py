@@ -9,6 +9,7 @@ class UserRepository:
 
 
     async def get_user_by_email(self, email: str) -> UserModel | None:
+        print("Репозиторий")
         result = await self.db.scalars(select(
             UserModel).where(
                 UserModel.email == email,
