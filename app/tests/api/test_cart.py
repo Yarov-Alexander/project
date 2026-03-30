@@ -54,20 +54,59 @@ async def test_add_item_with_invalid_quantity(create_auth_client):
 
 @pytest.mark.asyncio
 async def test_put_cart_item(create_auth_client):
+    seller = await create_auth_client("s@test.com", "123456789", "seller")
     admin = await create_auth_client("b@test.com", "123456789", "admin")
     await admin.post("/categories/", json={"name": "Electronics"})
 
-    seller = await create_auth_client("s@test.com", "123456789", "seller")
-    await seller.post("/products/", json={"name": "Iphone 18 Pro Max", "price": 1000, "stock": 50,
-                                                             "category_id": 1})
-    response_cart = await admin.post("/cart/items", json={"product_id": 1, "quantity": 1})
-    print(response_cart.json())
+    await seller.post("/products/", json={"name": "Iphone 18 Pro Max", "price": 1000, "stock": 50, "category_id": 1})
+    await admin.post("/cart/items", json={"product_id": 1, "quantity": 1})
+
     response_cart = await admin.put("/cart/items/1", json={"quantity": 2})
     assert response_cart.status_code == status.HTTP_200_OK
-    response_cart = await admin.get("/cart/items/1")
-    assert response_cart.json()["quantity"] == 2
+    response_cart = await admin.get("/cart/")
+    assert response_cart.json()["total_quantity"] == 2
+
+
+
+@pytest.mark.asyncio
+async def test_put_cart_item_errors(create_auth_client):
+    seller = await create_auth_client("s@test.com", "123456789", "seller")
+    admin = await create_auth_client("b@test.com", "123456789", "admin")
+    await admin.post("/categories/", json={"name": "Electronics"})
+
+    await seller.post("/products/", json={"name": "Iphone 18 Pro Max", "price": 1000, "stock": 50, "category_id": 1})
+    await admin.post("/cart/items", json={"product_id": 1, "quantity": 1})
+
+    response_cart = await admin.put("/cart/items/2", json={"quantity": 2})
+    assert response_cart.status_code == status.HTTP_404_NOT_FOUND
+    response_cart = await admin.put("/cart/items/1", json={"quantity": -1})
+    assert response_cart.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
+
+
 
 
 @pytest.mark.asyncio
 async def test_delete_cart_by_id(create_auth_client):
-    pass
+    seller = await create_auth_client("s@test.com", "123456789", "seller")
+    admin = await create_auth_client("b@test.com", "123456789", "admin")
+    await admin.post("/categories/", json={"name": "Electronics"})
+
+    await seller.post("/products/", json={"name": "Iphone 18 Pro Max", "price": 1000, "stock": 50, "category_id": 1})
+    await admin.post("/cart/items", json={"product_id": 1, "quantity": 1})
+
+    response_cart = await admin.delete("/cart/items/1")
+    assert response_cart.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_delete_cart_by_id_error(create_auth_client):
+    seller = await create_auth_client("s@test.com", "123456789", "seller")
+    admin = await create_auth_client("b@test.com", "123456789", "admin")
+    await admin.post("/categories/", json={"name": "Electronics"})
+
+    await seller.post("/products/", json={"name": "Iphone 18 Pro Max", "price": 1000, "stock": 50, "category_id": 1})
+    await admin.post("/cart/items", json={"product_id": 1, "quantity": 1})
+
+    response_cart = await admin.delete("/cart/items/2")
+    assert response_cart.status_code == status.HTTP_404_NOT_FOUND

@@ -51,7 +51,7 @@ async def update_item(
     current_user: User = Depends(get_current_user),
 ):
     try:
-        cart_item = await cart_service.update_item(payload.quantity, product_id, current_user.id)
+        cart_item = await cart_service.update_item(current_user.id, product_id, payload.quantity)
     except ProductNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     except CartNotFound:
@@ -65,7 +65,7 @@ async def delete_item(
     current_user: User = Depends(get_current_user),
 ):
     try:
-        await cart_service.delete_item(product_id, current_user.id)
+        await cart_service.delete_item(current_user.id, product_id)
     except ProductNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     except CartNotFound:

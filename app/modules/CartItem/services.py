@@ -48,7 +48,7 @@ class CartService:
 
         price_items = (
             Decimal(item.quantity) *
-            (item.product.price if item.product.price is not None else Decimal("0"))
+            (item.products.price if item.products.price is not None else Decimal("0"))
             for item in items
         )
         total_price_decimal = sum(price_items, Decimal("0.00"))
