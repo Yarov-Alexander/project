@@ -17,7 +17,7 @@ class CartItemUpdate(BaseModel):
 class CartItem(BaseModel):
     id: int = Field(..., description="ID позиции корзины")
     quantity: int = Field(..., ge=1, description="Количество товара")
-    product: Product = Field(description="ID товара")
+    products: Product = Field(description="товар")
 
     model_config = ConfigDict(from_attributes=True)
 

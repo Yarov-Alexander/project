@@ -20,7 +20,7 @@ class ProductService:
 
         return result
 
-    async def create_product(self, seller_id: int, product_dict: dict):
+    async def create_product(self, product_dict: dict, seller_id: int):
 
         category = await self.category_repo.get_one_category(product_dict["category_id"])  # Добавить Пользователя !!
         if not category:
@@ -47,6 +47,6 @@ class ProductService:
         product = await self.product_repo.get_product_by_id(product_id)
         if not product:
             raise ProductNotFound()
-        if product.category_id != user_id:
+        if product.seller_id != user_id:
             raise ValueError()
         await self.product_repo.delete_product(product_id=product_id, user_id=user_id)

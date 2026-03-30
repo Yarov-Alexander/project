@@ -2,7 +2,7 @@ from decimal import Decimal
 from sqlalchemy import String, Boolean, Integer, Numeric, Computed, Index, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import TSVECTOR
+
 from app.core.database import Base
 
 
@@ -19,7 +19,7 @@ class Product(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)  # New
-    rating: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    rating: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=True)
 
     cart_items_products: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="products", cascade="all, delete-orphan")
 
@@ -27,7 +27,7 @@ class Product(Base):
     seller: Mapped["User"] = relationship("User", back_populates="products")  # New
     reviews_products: Mapped["Review"] = relationship("Review", back_populates="products")
 
-    tsv: Mapped[str] = mapped_column(Text, nullable=False)
+    tsv: Mapped[str] = mapped_column(Text, nullable=True)
 
-    __table_args__ = (Index("ix_products_tsv_gin", "tsv", postgresql_using="gin"), )
+
 

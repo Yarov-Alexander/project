@@ -64,7 +64,7 @@ class CartService:
     async def add_item_to_cart(self, user_id: int, product_id: int, quantity: int):
         product = await self._ensure_product_available(product_id)
         if not product:
-            raise ProductNotFound("Product not found")
+            raise ProductNotFound()
         cart_item = await self._get_cart_item(user_id, product_id)
 
         if cart_item:
@@ -83,11 +83,11 @@ class CartService:
     async def update_item(self, user_id: int, product_id: int, quantity: int):
         product = await self._ensure_product_available(product_id)
         if not product:
-            raise ProductNotFound("Product not found")
+            raise ProductNotFound()
 
         cart_item = await self._get_cart_item(user_id, product_id)
         if not cart_item:
-            raise CartNotFound("Cart item not found")
+            raise CartNotFound()
 
         cart_item.quantity = quantity
         await self.cart_repo.add_cart_item(cart_item)
@@ -98,11 +98,11 @@ class CartService:
     async def delete_item(self, user_id: int, product_id: int):
         product = await self._ensure_product_available(product_id)
         if not product:
-            raise ProductNotFound("Product not found")
+            raise ProductNotFound()
 
         cart_item = await self._get_cart_item(user_id, product_id)
         if not cart_item:
-            raise CartNotFound("Cart item not found")
+            raise CartNotFound()
 
         await self.cart_repo.delete_cart_item(cart_item)
 

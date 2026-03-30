@@ -28,7 +28,7 @@ async def create_product(product: ProductCreate,
                          current_user: User = Depends(get_current_seller)
                          ) -> ProductSchema:
     try:
-        result = await product_service.create_product(product.model_dump(), seller_id=current_user.id)
+        result = await product_service.create_product(product_dict=product.model_dump(), seller_id=current_user.id)
         return result
     except CategoryNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")

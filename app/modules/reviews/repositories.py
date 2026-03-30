@@ -25,11 +25,11 @@ class ReviewRepository:
         )
         return result.all()
 
-    async def create_review(self, review: dict):
-        review_db = Review(**review)
+    async def create_review(self, user_id, review: dict):
+        review_db = Review(user_id=user_id, **review)
         self.db.add(review_db)
         await self.db.commit()
-        return review
+        return review_db
 
     async def get_review_by_id(self, review_id: int):
         return await self.db.get(Review, review_id)

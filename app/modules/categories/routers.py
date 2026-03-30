@@ -21,7 +21,7 @@ async def get_all_categories(service: CategoryService = Depends(get_category_ser
 async def get_category_by_id(category_id: int, service: CategoryService = Depends(get_category_service)):
     try:
         return await service.get_category_by_id(category_id)
-    except NotFound("Category not found"):
+    except NotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
 
 
@@ -41,10 +41,10 @@ async def update_category(category_id: int, category: CategoryCreate,
                           admin = Depends(get_current_admin)):
     try:
         return await service.update_category(category_id, **category.model_dump())
-    except NotFound("Category not found"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-    except BadRequest:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid request")
+    except NotFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{e}")
+    except BadRequest as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{e}")
 
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -54,6 +54,6 @@ async def delete_category(category_id: int,
     try:
         await service.delete_category(category_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except NotFound("Category not found"):
+    except NotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
 

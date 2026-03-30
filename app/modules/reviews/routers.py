@@ -32,14 +32,14 @@ async def get_product_reviews(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
 
 
-@router.post("/", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=list[ReviewResponse], status_code=status.HTTP_201_CREATED)
 async def create_review(
     review_create: ReviewCreate,
     review_service: ReviewService = Depends(get_review_service),
     current_user: User = Depends(get_current_buyer),
 ):
     try:
-        return await review_service.create_review(review_create.model_dump())
+        return await review_service.create_review(current_user.id, review_create.model_dump())
     except ProductNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
@@ -51,7 +51,7 @@ async def delete_review(
     user=Depends(get_current_user),
 ):
     try:
-        await service.delete_review(review_id, user)
+        await service.delete_review(review_id)
     except ReviewNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
 

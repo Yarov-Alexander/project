@@ -2,9 +2,9 @@ from passlib.context import CryptContext
 from datetime import datetime, timezone, timedelta
 import jwt
 from app.core.config import settings
+from passlib.hash import sha256_crypt
 
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 
 def hash_password(password):
@@ -24,7 +24,7 @@ def create_access_token(data: dict):
 
 def create_refresh_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_minutes)
+    expire = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
     to_encode.update({"exp": expire})
     token = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return token

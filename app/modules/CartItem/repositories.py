@@ -21,7 +21,7 @@ class CartRepository:
     async def get_cart_items(self, user_id: int):
         result = await self.db.scalars(
             select(CartItemModel)
-            .options(selectinload(CartItemModel.product))
+            .options(selectinload(CartItemModel.products))
             .where(CartItemModel.user_id == user_id)
             .order_by(CartItemModel.id)
         )
@@ -31,7 +31,7 @@ class CartRepository:
     async def get_cart_item(self, user_id: int, product_id: int):
         result = await self.db.scalars(
             select(CartItemModel)
-            .options(selectinload(CartItemModel.product))
+            .options(selectinload(CartItemModel.products))
             .where(
                 CartItemModel.user_id == user_id,
                 CartItemModel.product_id == product_id

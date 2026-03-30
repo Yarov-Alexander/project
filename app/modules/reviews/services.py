@@ -25,12 +25,12 @@ class ReviewService:
         return reviews
 
 
-    async def create_review(self, data: dict):
+    async def create_review(self,user_id: int,  data: dict):
 
         product = await self.product_repo.get_product_by_id(data["product_id"])
         if not product:
             raise ProductNotFound()
-        review = await self.review_repo.create_review(data)
+        review = await self.review_repo.create_review(user_id, data)
 
 
         avg = await self.review_repo.calculate_avg_rating(data["product_id"])

@@ -1,2 +1,2 @@
 class ProductNotFound(Exception):
-    detail = None
+    pass
