@@ -28,9 +28,11 @@ cd My_Project
 ### 2. Заполнение `.env` файла
 ```bash
 Введите свои данные в .env:
+DATABASE_URL=postgresql+asyncpg://user:password@db:5432/dbname
+SECRET_KEY=your_secret_key
 ```
 ### 3. Создание Docker image
 ```bash
 docker compose up --build
-Приложение будет доступно по адресу:http://localhost:8000/docs
 ```
+Приложение будет доступно по адресу:http://localhost:8000/docs
