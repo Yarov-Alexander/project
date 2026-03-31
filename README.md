@@ -1,6 +1,6 @@
 # My Project
 
-![Project Screenshot](screenshots/main_page.png)
+![Project Screenshot]([screenshots/main_page.png](https://github.com/Yarov-Alexander/project/issues/1#issue-4179220371))
 
 ## Описание
 Проект представляет собой **FastAPI приложение с PostgreSQL**, использует Alembic для миграций и полностью контейнеризирован через Docker и Docker Compose.  
