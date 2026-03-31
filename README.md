@@ -31,7 +31,7 @@ cd My_Project
 DATABASE_URL=postgresql+asyncpg://user:password@db:5432/dbname
 SECRET_KEY=your_secret_key
 ```
-### 3. Создание Docker image
+### 3. Создание image и запуск контейнера
 ```bash
 docker compose up --build
 ```
