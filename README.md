@@ -22,7 +22,7 @@
 
 ### 1. Клонирование репозитория
 ```bash
-git clone <URL_репозитория>
+git clone https://github.com/Yarov-Alexander/project
 cd My_Project
 ```
 ### 2. Заполнение `.env` файла
@@ -35,4 +35,4 @@ SECRET_KEY=your_secret_key
 ```bash
 docker compose up --build
 ```
-Приложение будет доступно по адресу:http://localhost:8000/docs
+Приложение будет доступно по адресу: http://localhost:8000/docs
