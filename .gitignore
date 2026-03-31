@@ -1,16 +1,16 @@
- virtual env
-.venv
-venv
-
-# python cache
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.venv/
 
-# environment variables
+# Env files
 .env
 
-# IDE
-.idea
+# IDEs
+.vscode/
+.idea/
 
-# OS
-.
+# Docker
+*.log
