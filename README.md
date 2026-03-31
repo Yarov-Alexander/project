@@ -24,3 +24,11 @@
 ```bash
 git clone <URL_репозитория>
 cd My_Project
+
+### 2. Заполнение `.env` файла
+Введите свои данные в .env:
+
+### 3. Создание Docker image
+---bash
+docker compose up --build
+Приложение будет доступно по адресу:http://localhost:8000/docs
