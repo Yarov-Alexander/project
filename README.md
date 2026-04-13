@@ -1,4 +1,4 @@
-# My Project
+# My Store
 
 ![Project Screenshot](https://github.com/Yarov-Alexander/project/issues/1#issue-4179220371)
 
